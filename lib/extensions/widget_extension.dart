@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_image_crop/data/data_drag_details_group.dart';
 import 'package:new_image_crop/data/data_scale_details_group.dart';
-import 'package:new_image_crop/extensions/template_extension.dart';
 
 export 'package:new_image_crop/extensions/widget_extension.dart';
 

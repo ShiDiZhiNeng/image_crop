@@ -16,6 +16,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 // import 'package:image/src/transform/copy_crop.dart' as crop;
+import 'package:common_tool_box/extensions/template_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +32,6 @@ import 'package:new_image_crop/data/data_update_base_map_result.dart';
 import 'package:new_image_crop/data/data_viewfinder_zoom_in_result.dart';
 import 'package:new_image_crop/extensions/num_extension.dart';
 import 'package:new_image_crop/extensions/rect_extension.dart';
-import 'package:new_image_crop/extensions/template_extension.dart';
 import 'package:new_image_crop/extensions/widget_extension.dart';
 import 'package:new_image_crop/paint/result_paint.dart';
 import 'package:new_image_crop/tools/fnum.dart';
