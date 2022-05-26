@@ -11,12 +11,30 @@ class ExampleDemo {
   }) {
     final controller = ImageEditorController();
     final editorConfig = DataEditorConfig(
-      lineColor: Colors.white,
-      cornerColor: Colors.green,
-      // cornerWidth: 3,
-      // lineWidth: 1.5,
-      // cornerHitTestSize: Size(40, 40)
-    );
+        // Configure the padding of the editing area
+        cropRectPadding: const EdgeInsets.all(20.0),
+        // Configure the length of the four corners of the viewfinder
+        cornerLength: 30,
+        // Configure the width of the four corners of the viewfinder
+        cornerWidth: 4,
+        // Configure the color of the four corners of the viewfinder
+        cornerColor: Colors.blue,
+        // Configure the click response area of the four corners of the viewfinder
+        cornerHitTestSize: const Size(40, 40),
+        // Configure the color of the four sides of the viewfinder
+        lineColor: Colors.white,
+        // Configure the color of the four sides of the viewfinder
+        lineWidth: 2,
+        // Configure the width of the four sides of the viewfinder frame
+        lineHitTestWidth: 40,
+        // Configure the length of each unit of the nine-square dotted line in the viewfinder
+        dottedLength: 2,
+        // Configure the color of the dotted line of the nine-square grid in the viewfinder
+        dottedColor: Colors.white,
+        // Configure the color of the outer portion of the viewfinder
+        editorMaskColorHandler: (context, isTouching) {
+          return Colors.black;
+        });
 
     showGeneralDialog(
         context: context,
