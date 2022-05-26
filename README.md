@@ -98,6 +98,7 @@ How to create an edit box
 ```dart
 Expanded(
   child: ImageEditorPlane(
+	  // Incoming image data ByteData
       imageData: imageData,
       controller: controller,
       editorConfig: editorConfig),
