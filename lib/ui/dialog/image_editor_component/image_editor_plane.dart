@@ -39,6 +39,7 @@ import 'package:new_image_crop/tools/image_utils.dart';
 import 'package:new_image_crop/tools/math_utils.dart';
 import 'package:new_image_crop/tools/timed_task.dart';
 import 'package:new_image_crop/widget/line.dart';
+import 'package:new_image_crop/widget/size_builder.dart';
 
 part './image_editor_select_box.dart';
 part './image_editor_controller.dart';
@@ -54,11 +55,13 @@ class ImageEditorPlane extends StatefulWidget {
     required this.imageData,
     required this.editorConfig,
     required this.controller,
+    required this.onTailorResult,
   }) : super(key: key);
 
   final DataEditorConfig editorConfig;
   final ByteData imageData;
   final ImageEditorController controller;
+  final FunTailorResult onTailorResult;
 
   @override
   State<StatefulWidget> createState() => _ImageEditorPlaneState();
@@ -70,7 +73,14 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
   final GlobalKey<_ImageEditorPlaneState> _handleKey =
       GlobalKey<_ImageEditorPlaneState>();
 
+  ///带状态截图key
   final _repaintBoundaryKey = GlobalKey();
+
+  ///预备截图key
+  final _prepareKey = GlobalKey();
+
+  ///裁剪状态
+  bool isCutting = false;
 
   ///取景框key
   UniqueKey? _selectBoxKey;
@@ -271,7 +281,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
     _updateSelectBox(const Rect.fromLTWH(0, 0, 100, 100));
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _winSize ??= _handleKey.currentContext?.size
           ?.also((it) => ui.Size(it.width, it.height));
     });
@@ -429,7 +439,17 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
   ///裁剪
   void _tailor() {
     print('裁剪');
-    _toShowScreenShotDialog(tailorRect: _resultRect_selectBox);
+    setState(() {
+      isCutting = true;
+    });
+    // _toScreenShot(key: _repaintBoundaryKey).then((value) async {
+    //   if (value != null) {
+    //     final image = value['image'] as ui.Image;
+    //     final size = value['size'] as Size;
+
+    //   }
+    // });
+    //  _toShowScreenShotDialog(tailorRect: _resultRect_selectBox);
   }
 
   ///还原
@@ -1472,7 +1492,8 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       key: this._handleKey,
       width: double.maxFinite,
       height: double.maxFinite,
-      color: Colors.grey.withOpacity(0.5),
+      // color: Colors.grey.withOpacity(0.5),
+      color: Colors.transparent,
       child: Container(
         color: Colors.transparent,
         width: double.maxFinite,
@@ -1481,6 +1502,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           child: Stack(
             alignment: Alignment.center,
             children: [
+              //
+              //待截图
+              if (isCutting) _buildPrepareScreenshot(),
+
+              //
+              //遮挡
+              Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                // color: Colors.black,
+                color: editorConfig.bgColor,
+              ),
+
+              //
+              //编辑区域背景
+              Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                color: Colors.grey.withOpacity(0.5),
+              ),
+
               //
               //底图
               Transform.rotate(
@@ -1677,6 +1719,53 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     return prop.targetImageWidget!;
   }
 
+  ///预备截图
+  Widget _buildPrepareScreenshot() {
+    return FutureBuilder(
+        future: _toScreenShot(key: _repaintBoundaryKey),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) return const SizedBox.shrink();
+          final Map value = snapshot.data! as Map;
+          final image = value['image'] as ui.Image;
+          final size = value['size'] as Size;
+          final tailorRect = _resultRect_selectBox;
+          return SizeBuilder(
+            builder: (size) {
+              //渲染完成，关闭
+              isCutting = false;
+              if (size != null) {
+                _toScreenShot(key: _prepareKey).then((value) async {
+                  if (value != null) {
+                    final image = value['image'] as ui.Image;
+                    final byteData = value['byteData'] as ByteData;
+                    final size = value['size'] as Size;
+
+                    setState(() {});
+
+                    widget.onTailorResult.call(image, byteData, size);
+                    // _testToShowScreenShotDialog(
+                    //     bytes: byteData.buffer.asUint8List());
+                  }
+                });
+              }
+              return Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                color: Colors.transparent,
+                alignment: Alignment.center,
+                child: RepaintBoundary(
+                  key: _prepareKey,
+                  child: CustomPaint(
+                      painter:
+                          ResultPaint(image: image, tailorRect: tailorRect),
+                      size: Size(tailorRect.width, tailorRect.height)),
+                ),
+              );
+            },
+          );
+        });
+  }
+
   ///截图
   Future<Map?> _toScreenShot({required GlobalKey key}) async {
     final boundary =
@@ -1686,64 +1775,65 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       // final image = await boundary.toImage(pixelRatio: dpr);
       final image = await boundary.toImage();
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      return Future.value({'image': byteData, 'size': boundary.size});
+      final ui.Image img = await ImageUtils.byte2UiImage(byteData!);
+      return Future.value(
+          {'byteData': byteData, 'image': img, 'size': boundary.size});
     }
 
     return Future.value(null);
   }
 
   ///展示截图
-  void _toShowScreenShotDialog({required Rect tailorRect}) {
-    _toScreenShot(key: _repaintBoundaryKey).then((value) async {
-      if (value != null) {
-        final image = value['image'] as ByteData;
-        final size = value['size'] as Size;
+  // void _toShowScreenShotDialog(
+  //     {required Rect tailorRect, FunTailorResult? action}) {
+  //   _toScreenShot(key: _repaintBoundaryKey).then((value) async {
+  //     if (value != null) {
+  //       final image = value['image'] as ui.Image;
+  //       final size = value['size'] as Size;
 
-        final ui.Image img = await ImageUtils.byte2UiImage(image);
-        final key = GlobalKey();
-        showDialog(
-            context: context,
-            builder: (context) {
-              return Stack(
-                children: [
-                  Container(
-                    width: double.maxFinite,
-                    height: double.maxFinite,
-                    color: Colors.white,
-                    alignment: Alignment.center,
-                    child: RepaintBoundary(
-                      key: key,
-                      child: CustomPaint(
-                          painter:
-                              ResultPaint(image: img, tailorRect: tailorRect),
-                          size: Size(tailorRect.width, tailorRect.height)),
-                    ),
-                  ).gestureDetector(
-                    onTap: () async {
-                      final map = await _toScreenShot(key: key);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    child: Container(
-                      width: winSize!.width,
-                      alignment: Alignment.center,
-                      child: Text(
-                        '点击任意位置关闭',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey.withOpacity(0.8),
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            });
-      }
-    });
-  }
+  //       final key = GlobalKey();
+  //       showDialog(
+  //           context: context,
+  //           builder: (context) {
+  //             return Stack(
+  //               children: [
+  //                 Container(
+  //                   width: double.maxFinite,
+  //                   height: double.maxFinite,
+  //                   color: Colors.white,
+  //                   alignment: Alignment.center,
+  //                   child: RepaintBoundary(
+  //                     key: key,
+  //                     child: CustomPaint(
+  //                         painter:
+  //                             ResultPaint(image: image, tailorRect: tailorRect),
+  //                         size: Size(tailorRect.width, tailorRect.height)),
+  //                   ),
+  //                 ).gestureDetector(
+  //                   onTap: () async {
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                 ),
+  //                 Positioned(
+  //                   bottom: 10,
+  //                   child: Container(
+  //                     width: winSize!.width,
+  //                     alignment: Alignment.center,
+  //                     child: Text(
+  //                       '点击任意位置关闭',
+  //                       style: TextStyle(
+  //                           fontSize: 18,
+  //                           color: Colors.grey.withOpacity(0.8),
+  //                           fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ),
+  //                 )
+  //               ],
+  //             );
+  //           });
+  //     }
+  //   });
+  // }
 
   //拿到截图数据切图
   // void _toCutTheFigure() {

@@ -6,7 +6,7 @@ typedef EditorMaskColorHandler = Color Function(
 ///编辑可配置参数
 class DataEditorConfig {
   DataEditorConfig({
-    // this.maxScale = 5.0,
+    this.bgColor = Colors.black,
     this.cropRectPadding = const EdgeInsets.all(20.0),
     this.cornerLength = 30,
     this.cornerWidth = 4,
@@ -20,27 +20,27 @@ class DataEditorConfig {
     this.editorMaskColorHandler,
   });
 
-  // double maxScale;
+  final Color bgColor;
 
-  EdgeInsets cropRectPadding;
+  final EdgeInsets cropRectPadding;
 
-  double cornerLength;
+  final double cornerLength;
 
-  double cornerWidth;
+  final double cornerWidth;
 
-  Color cornerColor;
+  final Color cornerColor;
 
-  Size cornerHitTestSize;
+  final Size cornerHitTestSize;
 
-  Color lineColor;
+  final Color lineColor;
 
-  double lineWidth;
+  final double lineWidth;
 
-  double lineHitTestWidth;
+  final double lineHitTestWidth;
 
-  double dottedLength;
+  final double dottedLength;
 
-  Color dottedColor;
+  final Color dottedColor;
 
-  EditorMaskColorHandler? editorMaskColorHandler;
+  final EditorMaskColorHandler? editorMaskColorHandler;
 }

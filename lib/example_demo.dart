@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:new_image_crop/data/data_editor_config.dart';
 import 'package:new_image_crop/extensions/widget_extension.dart';
 import 'package:new_image_crop/ui/dialog/image_editor_component/image_editor_plane.dart';
+import 'package:new_image_crop/widget/size_builder.dart';
 
 class ExampleDemo {
   static void show({
@@ -11,6 +14,8 @@ class ExampleDemo {
   }) {
     final controller = ImageEditorController();
     final editorConfig = DataEditorConfig(
+        // Edit area background color
+        bgColor: Colors.black,
         // Configure the padding of the editing area
         cropRectPadding: const EdgeInsets.all(20.0),
         // Configure the length of the four corners of the viewfinder
@@ -54,9 +59,15 @@ class ExampleDemo {
                     ),
                     Expanded(
                       child: ImageEditorPlane(
-                          imageData: imageData,
-                          controller: controller,
-                          editorConfig: editorConfig),
+                        imageData: imageData,
+                        controller: controller,
+                        editorConfig: editorConfig,
+                        onTailorResult: (image, byteData, size) {
+                          print('裁剪结果');
+                          _testToShowScreenShotDialog(
+                              context: context, byteData: byteData);
+                        },
+                      ),
                     ),
                     Container(
                       width: double.maxFinite,
@@ -153,7 +164,7 @@ class ExampleDemo {
                               )).gestureDetector(
                             onTap: () {
                               print('+ <<');
-                              controller.addRotateAngle();
+                              controller.addRotateZAngle();
                             },
                           ),
                           Container(
@@ -167,7 +178,7 @@ class ExampleDemo {
                               )).gestureDetector(
                             onTap: () {
                               print('>> -');
-                              controller.reduceRotateAngle();
+                              controller.reduceRotateZAngle();
                             },
                           ),
                           //------------ 旋转 90
@@ -333,6 +344,46 @@ class ExampleDemo {
               ),
             ),
           );
+        });
+  }
+
+  //test
+  static void _testToShowScreenShotDialog(
+      {required BuildContext context, required ByteData byteData}) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Scaffold(body: SizeBuilder(builder: (size) {
+            return Stack(
+              children: [
+                Container(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: Image.memory(byteData.buffer.asUint8List()),
+                ).gestureDetector(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                Positioned(
+                  bottom: 20,
+                  child: Container(
+                    width: size?.width,
+                    alignment: Alignment.center,
+                    child: Text(
+                      '点击任意位置关闭',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey.withOpacity(1),
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                )
+              ],
+            );
+          }));
         });
   }
 }

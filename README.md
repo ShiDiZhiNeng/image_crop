@@ -8,6 +8,9 @@ Some initial configurable parameters before creating the edit box.
 
 ```dart
 final editorConfig = DataEditorConfig(
+	// Edit area background color
+    bgColor: Colors.black,
+
 	// Configure the padding of the editing area
     cropRectPadding: const EdgeInsets.all(20.0),
 
@@ -97,11 +100,18 @@ How to create an edit box
 
 ```dart
 Expanded(
-  child: ImageEditorPlane(
-	  // Incoming image data ByteData
-      imageData: imageData,
-      controller: controller,
-      editorConfig: editorConfig),
+	child: ImageEditorPlane(
+		// Incoming image data ByteData
+		imageData: imageData,
+		controller: controller,
+		editorConfig: editorConfig,
+		// Monitor cropping results Image, ByteData, Size
+		onTailorResult: (image, byteData, size) {
+			print('Crop result');
+			_testToShowScreenShotDialog(
+				context: context, byteData: byteData);
+		},
+	),
 ),
 
 ```

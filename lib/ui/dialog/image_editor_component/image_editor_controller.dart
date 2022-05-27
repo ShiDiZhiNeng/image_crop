@@ -1,5 +1,8 @@
 part of image_editor;
 
+typedef FunTailorResult = void Function(
+    ui.Image? img, ByteData bytedata, Size? size);
+
 class ImageEditorController {
   final _stream = StreamController<Map>();
 
@@ -48,8 +51,8 @@ class ImageEditorController {
     });
   }
 
-  ///旋转角度增加
-  void addRotateAngle() {
+  ///Z旋转角度增加
+  void addRotateZAngle() {
     _stream.sink.add({
       'FunName': 'rotateAngle',
       'args': {
@@ -58,8 +61,8 @@ class ImageEditorController {
     });
   }
 
-  ///旋转角度减少
-  void reduceRotateAngle() {
+  ///Z旋转角度减少
+  void reduceRotateZAngle() {
     _stream.sink.add({
       'FunName': 'rotateAngle',
       'args': {

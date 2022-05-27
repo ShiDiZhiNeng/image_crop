@@ -112,7 +112,7 @@ class _SelectBoxState extends State<_SelectBox> {
         _srcRect ??= Rect.fromLTWH(0, 0, it.width, it.height);
       });
     } else {
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         _winSize ??= _globalKey.currentContext?.size;
         _winSize?.go((it) {
           _srcRect ??= Rect.fromLTWH(0, 0, it.width, it.height);
