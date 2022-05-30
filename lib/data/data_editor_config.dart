@@ -20,27 +20,39 @@ class DataEditorConfig {
     this.editorMaskColorHandler,
   });
 
+  /// 编辑区域背景颜色
   final Color bgColor;
 
+  /// 编辑区域widght的padding
   final EdgeInsets cropRectPadding;
 
+  /// 取景框边角长度
   final double cornerLength;
 
+  /// 取景框边角宽度
   final double cornerWidth;
 
+  /// 取景框边角颜色
   final Color cornerColor;
 
+  /// 取景框边角响应范围
   final Size cornerHitTestSize;
 
+  /// 取景框四条边颜色
   final Color lineColor;
 
+  /// 取景框四条边边宽
   final double lineWidth;
 
+  /// 取景框四条边响应面积宽度
   final double lineHitTestWidth;
 
+  /// 取景框中九宫格虚线点单位长度
   final double dottedLength;
 
+  /// 取景框中九宫格虚线颜色
   final Color dottedColor;
 
+  /// 配置取景器外部部分的颜色
   final EditorMaskColorHandler? editorMaskColorHandler;
 }

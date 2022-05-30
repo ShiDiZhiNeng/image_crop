@@ -21,6 +21,7 @@ class DataDragDetailsGroup {
     dragEndDetails = null;
   }
 
+  /// 返回终点与始点的差距
   Offset? diff() {
     if (dragUpdateDetails != null && dragDownDetails != null) {
       final dx = dragUpdateDetails!.globalPosition.dx -

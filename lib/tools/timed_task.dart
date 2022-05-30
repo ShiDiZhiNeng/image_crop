@@ -7,6 +7,7 @@ class TimedTask {
     _backCall = backCall;
   }
 
+  /// 开始任务
   void start() {
     Future.delayed(this.duration, () {
       if (!_isClose) {
@@ -15,5 +16,6 @@ class TimedTask {
     });
   }
 
+  /// 终止任务
   void close() => _isClose = true;
 }

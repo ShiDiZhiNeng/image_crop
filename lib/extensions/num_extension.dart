@@ -1,6 +1,7 @@
 import 'dart:math';
 
 extension NumExtension on num {
+  ///平方
   R square<R extends num>() {
     return this * this as R;
   }
