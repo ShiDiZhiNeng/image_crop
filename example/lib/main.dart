@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             GestureDetector(
                 onTap: () async {
-                  //点击进入测试
+                  //Click to edit
                   ExampleDemo.show(
                       context: context,
                       imageData: await AssertUtils.readImageByByteData(
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.grey.withOpacity(0.8),
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                     ),
-                    child: const Text('点击进入编辑'),
+                    child: const Text('Click to edit'),
                   ),
                 ))
           ],

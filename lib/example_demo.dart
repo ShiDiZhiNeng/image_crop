@@ -63,7 +63,7 @@ class ExampleDemo {
                         controller: controller,
                         editorConfig: editorConfig,
                         onTailorResult: (image, byteData, size) {
-                          print('裁剪结果');
+                          print('Result of clipping');
                           _testToShowScreenShotDialog(
                               context: context, byteData: byteData);
                         },
@@ -86,12 +86,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                'x轴 --',
+                                'xAxis--',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('x轴 --');
+                              print('xAxis--');
                               controller.reduceRotateXAngle();
                             },
                           ),
@@ -100,12 +100,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                'x轴 ++',
+                                'xAxis++',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('x轴 ++');
+                              print('xAxis++');
                               controller.addRotateXAngle();
                             },
                           ),
@@ -115,12 +115,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                'y轴 --',
+                                'yAxis--',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('y轴 --');
+                              print('yAxis--');
                               controller.reduceRotateYAngle();
                             },
                           ),
@@ -129,12 +129,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                'y轴 ++',
+                                'yAxis++',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('y轴 ++');
+                              print('yAxis++');
                               controller.addRotateYAngle();
                             },
                           ),
@@ -158,12 +158,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '<<旋转',
+                                'zAxis--',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('+ <<');
+                              print('zAxis--');
                               controller.addRotateZAngle();
                             },
                           ),
@@ -172,12 +172,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '旋转>>',
+                                'zAxis++',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('>> -');
+                              print('zAxis++');
                               controller.reduceRotateZAngle();
                             },
                           ),
@@ -187,12 +187,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '旋转左90',
+                                'leftRotate90',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('+ <<');
+                              print('leftRotate90');
                               controller.addRotateAngle90();
                             },
                           ),
@@ -216,12 +216,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '缩放 --',
+                                'scale--',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('缩放 --');
+                              print('scale--');
                               controller.reduceScaleRatio();
                             },
                           ),
@@ -230,12 +230,12 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '缩放 ++',
+                                'scale++',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
                             onTap: () {
-                              print('缩放 ++');
+                              print('scale++');
                               controller.addScaleRatio();
                             },
                           ),
@@ -259,7 +259,7 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '上下翻转',
+                                'upside down',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
@@ -271,7 +271,7 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: const Text(
-                                '左右翻转',
+                                'Turn around',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               )).gestureDetector(
@@ -296,11 +296,11 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               child: const Text(
-                                '取消',
+                                'cancel',
                                 style: TextStyle(color: Colors.white),
                               )).gestureDetector(
                             onTap: () {
-                              print('取消');
+                              print('cancel');
                               Navigator.pop(context);
                             },
                           ),
@@ -309,11 +309,11 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               child: const Text(
-                                '裁剪',
+                                'tailor',
                                 style: TextStyle(color: Colors.white),
                               )).gestureDetector(
                             onTap: () {
-                              print('裁剪');
+                              print('tailor');
                               controller.tailor();
                             },
                           ),
@@ -322,11 +322,11 @@ class ExampleDemo {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               child: const Text(
-                                '还原',
+                                'restore',
                                 style: TextStyle(color: Colors.white),
                               )).gestureDetector(
                             onTap: () {
-                              print('还原');
+                              print('restore');
                               controller.restore();
                             },
                           ),
@@ -373,7 +373,7 @@ class ExampleDemo {
                     width: size?.width,
                     alignment: Alignment.center,
                     child: Text(
-                      '点击任意位置关闭',
+                      'Click anywhere to close',
                       style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey.withOpacity(1),
