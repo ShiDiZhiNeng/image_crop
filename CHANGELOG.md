@@ -11,3 +11,8 @@
 ## [1.0.0] - 2022-05-30
 
 * add example demo.
+
+## [1.0.0+1] - 2022-05-30
+
+* update LICENSE info.
+
