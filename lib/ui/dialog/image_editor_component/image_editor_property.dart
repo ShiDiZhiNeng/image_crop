@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_getters_setters
+
 part of image_editor;
 
 class ImageEditorProperty {

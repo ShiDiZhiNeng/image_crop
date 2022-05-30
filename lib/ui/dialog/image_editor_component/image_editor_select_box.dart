@@ -60,8 +60,8 @@ class _SelectBoxState extends State<_SelectBox> {
   DataEditorConfig get editorConfig => widget.editorConfig;
 
   final Map<_AngleType, DataDragDetailsGroup> _dataDragDetailsGroup = {};
-  final DataDragDetailsGroup _dataDragDetailsGroup_move =
-      DataDragDetailsGroup();
+  // final DataDragDetailsGroup _dataDragDetailsGroup_move =
+  //     DataDragDetailsGroup();
 
   ///是否按下
   bool isPressDown = false;
@@ -485,8 +485,8 @@ class _SelectBoxState extends State<_SelectBox> {
   void _updateRect(_AngleType type, Offset? diff) {
     if (diff == null) return;
 
-    var dx = diff.dx;
-    var dy = diff.dy;
+    final dx = diff.dx;
+    final dy = diff.dy;
     // MathUtils.coordinateSwitch(widget.fixedRotationAngle, dx, dy).go((it) {
     //   dx = it.dx;
     //   dy = it.dy;

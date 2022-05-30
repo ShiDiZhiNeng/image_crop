@@ -16,7 +16,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 // import 'package:image/src/transform/copy_crop.dart' as crop;
-import 'package:common_tool_box/extensions/template_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +31,7 @@ import 'package:new_image_crop/data/data_update_base_map_result.dart';
 import 'package:new_image_crop/data/data_viewfinder_zoom_in_result.dart';
 import 'package:new_image_crop/extensions/num_extension.dart';
 import 'package:new_image_crop/extensions/rect_extension.dart';
+import 'package:new_image_crop/extensions/template_extension.dart';
 import 'package:new_image_crop/extensions/widget_extension.dart';
 import 'package:new_image_crop/paint/result_paint.dart';
 import 'package:new_image_crop/tools/fnum.dart';
@@ -1410,33 +1410,33 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
   }
 
   ///播放旋转动画
-  void _uiPlayRotateAnimation(
-      {required double before,
-      required double after,
-      AnimationController? controller,
-      Duration duration = const Duration(milliseconds: 500),
-      void Function(AnimationStatus)? listener}) {
-    _animationController_propRotate?.stop();
-    if (controller == null) {
-      _animationController_propRotate =
-          AnimationController(vsync: this, duration: duration);
-    }
+  // void _uiPlayRotateAnimation(
+  //     {required double before,
+  //     required double after,
+  //     AnimationController? controller,
+  //     Duration duration = const Duration(milliseconds: 500),
+  //     void Function(AnimationStatus)? listener}) {
+  //   _animationController_propRotate?.stop();
+  //   if (controller == null) {
+  //     _animationController_propRotate =
+  //         AnimationController(vsync: this, duration: duration);
+  //   }
 
-    _animation_propRotate = Tween<double>(begin: before, end: after)
-        .chain(CurveTween(curve: Curves.easeOut))
-        .animate(controller ?? _animationController_propRotate!);
+  //   _animation_propRotate = Tween<double>(begin: before, end: after)
+  //       .chain(CurveTween(curve: Curves.easeOut))
+  //       .animate(controller ?? _animationController_propRotate!);
 
-    _animation_propRotate!.addListener(() {
-      setState(() {});
-    });
+  //   _animation_propRotate!.addListener(() {
+  //     setState(() {});
+  //   });
 
-    _animation_propRotate!.addStatusListener((status) {
-      // print('status:$status');
-      listener?.call(status);
-    });
+  //   _animation_propRotate!.addStatusListener((status) {
+  //     // print('status:$status');
+  //     listener?.call(status);
+  //   });
 
-    (controller ?? _animationController_propRotate!).forward();
-  }
+  //   (controller ?? _animationController_propRotate!).forward();
+  // }
 
   ///播放取景框缩放移动动画
   void _uiPlaySelectBoxAnimation(
@@ -1685,8 +1685,8 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
             p1.diff().go((it) {
               // print('移动 it?.dx:${it?.dx.toInt()} it?.dy:${it?.dy.toInt()}');
-              var dx = it?.dx ?? 0;
-              var dy = it?.dy ?? 0;
+              final dx = it?.dx ?? 0;
+              final dy = it?.dy ?? 0;
               //更新最新值
               _moveX.value = _moveX.cacheValue + dx;
               _moveY.value = _moveY.cacheValue + dy;

@@ -398,8 +398,8 @@ mixin ImageEditorCalculate {
           });
           // bmWidth = prop.baseMapSize.width * new_scale;
           // bmHeight = prop.baseMapSize.height * new_scale;
-          final bmWidth222 = prop.baseMapSize.width * new_scale;
-          final bmHeight222 = prop.baseMapSize.height * new_scale;
+          // final bmWidth222 = prop.baseMapSize.width * new_scale;
+          // final bmHeight222 = prop.baseMapSize.height * new_scale;
 
           diff_left = boxRect.left - (moveOffset.dx - bmWidth / 2);
           diff_top = boxRect.top - (moveOffset.dy - bmHeight / 2);

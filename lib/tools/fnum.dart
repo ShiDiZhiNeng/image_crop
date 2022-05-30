@@ -1,6 +1,8 @@
 class FNum<T extends num> {
   FNum(this.initValue, {required T min, required T max}) {
-    assert(min <= max, '');
+    if (min > max) {
+      min = max;
+    }
     this._min = min;
     this._max = max;
     value = initValue;
