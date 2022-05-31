@@ -86,9 +86,15 @@ class _SelectBoxState extends State<_SelectBox> {
     });
   }
 
-  Color get _paddingColor => isPressDown
-      ? Colors.black.withOpacity(0.3)
-      : Colors.black.withOpacity(0.7);
+  Color get _paddingColor {
+    // return isPressDown
+    //   ? Colors.black.withOpacity(0.3)
+    //   : Colors.black.withOpacity(0.7);
+    return editorConfig.editorMaskColorHandler?.call(context, isPressDown) ??
+        (isPressDown
+            ? Colors.black.withOpacity(0.3)
+            : Colors.black.withOpacity(0.7));
+  }
 
   // MediaQueryData get _media => MediaQuery.of(context);
 

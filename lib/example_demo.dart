@@ -38,7 +38,10 @@ class ExampleDemo {
         dottedColor: Colors.white,
         // Configure the color of the outer portion of the viewfinder
         editorMaskColorHandler: (context, isTouching) {
-          return Colors.black;
+          return isTouching
+              ? Colors.black.withOpacity(0.3)
+              : Colors.black.withOpacity(0.7);
+          // return Colors.black;
         });
 
     showGeneralDialog(
