@@ -7,6 +7,7 @@ import 'package:new_image_crop/data/data_scale_details_group.dart';
 export 'package:new_image_crop/extensions/widget_extension.dart';
 
 extension WidgetExtension on Widget {
+  ///Expanded 扩展
   Expanded expanded({
     Key? key,
     int flex = 1,
@@ -14,6 +15,7 @@ extension WidgetExtension on Widget {
     return Expanded(key: key, child: this);
   }
 
+  ///Positioned 扩展
   Positioned positioned({
     Key? key,
     double? left,
@@ -34,6 +36,7 @@ extension WidgetExtension on Widget {
     );
   }
 
+  ///GestureDetector 扩展
   GestureDetector gestureDetector({
     Key? key,
     HitTestBehavior? behavior,
@@ -84,6 +87,7 @@ extension WidgetExtension on Widget {
     );
   }
 
+  ///GestureDetector 扩展
   GestureDetector gestureVerticalWithData({
     Key? key,
     required DataDragDetailsGroup data,
@@ -123,6 +127,7 @@ extension WidgetExtension on Widget {
     );
   }
 
+  ///GestureDetector 扩展
   GestureDetector gestureHorizontalWithData({
     Key? key,
     required DataDragDetailsGroup data,
@@ -162,6 +167,7 @@ extension WidgetExtension on Widget {
     );
   }
 
+  ///GestureDetector 扩展
   GestureDetector gesturePanWithData(
       {Key? key,
       required DataDragDetailsGroup data,
@@ -204,6 +210,7 @@ extension WidgetExtension on Widget {
         child: this);
   }
 
+  ///GestureDetector 扩展
   GestureDetector gestureScaleWithData({
     Key? key,
     required DataScaleDetailsGroup data,

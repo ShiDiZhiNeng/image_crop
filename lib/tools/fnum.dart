@@ -30,6 +30,7 @@ class FNum<T extends num> {
 
   T get value => _value;
 
+  /// copy 自己
   FNum<T> clone({T? initValue, T? min, T? max}) {
     return FNum(initValue ?? this.initValue,
         min: min ?? this.min, max: max ?? this.max);

@@ -52,6 +52,7 @@ class DataScaleDetailsGroup {
     scaleEndDetails = null;
   }
 
+  /// 返回终点与始点的差距
   Offset? diff() {
     if (scaleUpdateDetails != null && scaleStartDetails != null) {
       final dx = scaleUpdateDetails!.localFocalPoint.dx -
