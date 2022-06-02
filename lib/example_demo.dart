@@ -61,15 +61,18 @@ class ExampleDemo {
                       height: media.padding.top,
                     ),
                     Expanded(
-                      child: ImageEditorPlane(
-                        imageData: imageData,
-                        controller: controller,
-                        editorConfig: editorConfig,
-                        onTailorResult: (image, byteData, size) {
-                          print('Result of clipping');
-                          _testToShowScreenShotDialog(
-                              context: context, byteData: byteData);
-                        },
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ImageEditorPlane(
+                          imageData: imageData,
+                          controller: controller,
+                          editorConfig: editorConfig,
+                          onTailorResult: (image, byteData, size) {
+                            print('Result of clipping');
+                            _testToShowScreenShotDialog(
+                                context: context, byteData: byteData);
+                          },
+                        ),
                       ),
                     ),
                     Container(
