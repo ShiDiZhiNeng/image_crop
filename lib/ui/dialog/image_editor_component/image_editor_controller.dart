@@ -21,6 +21,22 @@ class ImageEditorController {
     });
   }
 
+  // if (event['FunName'] == 'setRotateAngle') {
+  //
+  // final angle = event['args']['angle'] as double?;
+  //
+  // if (angle != null) {
+  // prop.rotateAngel = angle;
+  // setState(_marginalDetection);
+  // }
+  // }
+
+ void setTransform(Map args) {
+   _stream.sink.add({
+     'FunName': 'setTransform',
+     'args': args,
+   });
+ }
   ///x轴旋转角度减少
   void reduceRotateXAngle() {
     _stream.sink.add({

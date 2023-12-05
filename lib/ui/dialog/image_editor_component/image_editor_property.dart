@@ -60,7 +60,7 @@ class ImageEditorProperty {
 
   //目标图旋转的角度
   final FNum<double> _rotateAngel =
-      FNum<double>(0, min: -45, max: 45); //限制-45 ~ 45
+      FNum<double>(0, min: 0, max: 360); //限制-45 ~ 45
   set rotateAngel(double v) {
     _rotateAngel.value = v;
   }

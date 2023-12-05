@@ -12,7 +12,6 @@ library image_editor;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 // import 'package:image/src/transform/copy_crop.dart' as crop;
@@ -21,6 +20,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:new_image_crop/constant/direction.dart';
 import 'package:new_image_crop/data/data_coordinate_transformation_with_90_result.dart';
+
 // import 'package:image/image.dart' as crop;
 import 'package:new_image_crop/data/data_drag_details_group.dart';
 import 'package:new_image_crop/data/data_editor_config.dart';
@@ -41,10 +41,13 @@ import 'package:new_image_crop/tools/timed_task.dart';
 import 'package:new_image_crop/widget/line.dart';
 import 'package:new_image_crop/widget/size_builder.dart';
 
-part './image_editor_select_box.dart';
-part './image_editor_controller.dart';
-part './image_editor_property.dart';
 part './image_editor_calculate.dart';
+
+part './image_editor_controller.dart';
+
+part './image_editor_property.dart';
+
+part './image_editor_select_box.dart';
 
 /*
   旋转，缩放，剪裁
@@ -67,11 +70,9 @@ class ImageEditorPlane extends StatefulWidget {
   State<StatefulWidget> createState() => _ImageEditorPlaneState();
 }
 
-class _ImageEditorPlaneState extends State<ImageEditorPlane>
-    with TickerProviderStateMixin, ImageEditorCalculate {
+class _ImageEditorPlaneState extends State<ImageEditorPlane> with TickerProviderStateMixin, ImageEditorCalculate {
   ///handlekey
-  final GlobalKey<_ImageEditorPlaneState> _handleKey =
-      GlobalKey<_ImageEditorPlaneState>();
+  final GlobalKey<_ImageEditorPlaneState> _handleKey = GlobalKey<_ImageEditorPlaneState>();
 
   ///带状态截图key
   final _repaintBoundaryKey = GlobalKey();
@@ -135,10 +136,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
   ///底图 rect
   Rect get baseMap_rect {
-    return Rect.fromCenter(
-        center: ui.Offset(_moveX.value, _moveY.value),
-        width: prop.baseMapSize.width,
-        height: prop.baseMapSize.height);
+    return Rect.fromCenter(center: ui.Offset(_moveX.value, _moveY.value), width: prop.baseMapSize.width, height: prop.baseMapSize.height);
   }
 
   ///底图的坐标 left
@@ -171,13 +169,14 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
   ///底图替身 中心坐标
   Offset get centralPoint_substitute {
-    return Offset(posX_substitute + prop.substituteSize!.width / 2,
-        posY_substitute + prop.substituteSize!.height / 2);
+    return Offset(posX_substitute + prop.substituteSize!.width / 2, posY_substitute + prop.substituteSize!.height / 2);
   }
 
   ///是否拖拽替身图中
   bool _isDragingSubstitute = false;
+
   bool get isDragingSubstitute => _isDragingSubstitute;
+
   set isDragingSubstitute(bool v) {
     _isDragingSubstitute = v;
     if (v) {
@@ -237,9 +236,111 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
     //根据配置重置缩放值
     // prop._scaleRatio = prop._scaleRatio.clone(max: editorConfig.maxScale);
+    // else if (event['FunName'] == 'setRotateAngle') {
+    //
+    // final angle = event['args']['angle'] as double?;
+    //
+    // if (angle != null) {
+    // prop.rotateAngel = angle;
+    // setState(_marginalDetection);
+    // }
+    // }
 
     _editorController = widget.controller;
     _editorController._stream.stream.listen((event) {
+
+      switch (event['FunName']) {
+        case 'rotateXAngle':
+          final isAdd = event['args']['isAdd'] as bool?;
+          isAdd?.go((it) => it ? addRotateXAngle() : reduceRotateXAngle());
+          break;
+
+        case 'rotateYAngle':
+          final isAdd = event['args']['isAdd'] as bool?;
+          isAdd?.go((it) => it ? addRotateYAngle() : reduceRotateYAngle());
+          break;
+
+        case 'rotateAngle':
+          final isAdd = event['args']['isAdd'] as bool?;
+          isAdd?.go((it) => it ? addRotateAngle() : reduceRotateAngle());
+          break;
+
+        case 'rotateAngle90':
+          final isAdd = event['args']['isAdd'] as bool?;
+          isAdd?.go((it) => it ? addRotateAngle90() : reduceRotateAngle90());
+          break;
+
+        case 'scaleRatio':
+          final isAdd = event['args']['isAdd'] as bool?;
+          isAdd?.go((it) => it ? addScaleRatio() : reduceScaleRatio());
+          break;
+
+        case 'upsideDown':
+          _upsideDown();
+          break;
+
+        case 'turnAround':
+          _turnAround();
+          break;
+
+        case 'tailor':
+          _tailor();
+          break;
+
+        case 'restore':
+          _restore();
+          break;
+
+        case 'setTransform':
+          final args = event['args'] as Map?;
+          if (args != null) {
+            final rotateAngle = args['rotateAngle'] as double?;
+            final rotateAngle90 = args['rotateAngle90'] as int?;
+            final scaleRatio = args['scaleRatio'] as double?;
+            final upsideDown = args['upsideDown'] as bool?;
+            final turnAround = args['turnAround'] as bool?;
+            final centrePointDx = args['centrePointDx'] as double?;
+            final centrePointDy = args['centrePointDy'] as double?;
+
+            if (rotateAngle != null) {
+              prop.rotateAngel = rotateAngle;
+            }
+            if (rotateAngle90 != null) {
+              prop.fixedRotationAngle = rotateAngle90;
+            }
+            if (scaleRatio != null) {
+              prop.scaleRatio = scaleRatio;
+            }
+            if (upsideDown != null) {
+              prop.isUpsideDown = upsideDown;
+            }
+            if (turnAround != null) {
+              prop.isTurnAround = turnAround;
+            }
+            if (centrePointDx != null && centrePointDy != null) {
+              _moveX.value = centrePointDx;
+              _moveY.value = centrePointDy;
+            }
+            Future.delayed(const Duration(milliseconds: 300), () {
+              setState(_marginalDetection);
+            });
+            // Uncomment or modify the following lines as per your application's need
+            // setState(() {
+            //   _uiAdaptWinWithImage();
+            //   _updateBaseMap();
+            //   _uiAdaptWinWithSelectBox();
+            //   _uiLimitImageMoveInScope();
+            // });
+          }
+          break;
+
+        default:
+        // Optional: Handle any cases not explicitly covered above
+          break;
+      }
+
+      /*
+
       if (event['FunName'] == 'rotateXAngle') {
         final isAdd = event['args']['isAdd'] as bool?;
         isAdd?.go((it) => it ? addRotateXAngle() : reduceRotateXAngle());
@@ -263,12 +364,54 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
         _tailor();
       } else if (event['FunName'] == 'restore') {
         _restore();
-      }
+      } else if (event['FunName'] == 'setTransform') {
+        final args = event['args'] as Map?;
+        if (args != null) {
+          final rotateAngle = args['rotateAngle'] as double?;
+          final rotateAngle90 = args['rotateAngle90'] as int?;
+          final scaleRatio = args['scaleRatio'] as double?;
+          final upsideDown = args['upsideDown'] as bool?;
+          final turnAround = args['turnAround'] as bool?;
+          final centrePointDx = args['centrePointDx'] as double?;
+          final centrePointDy = args['centrePointDy'] as double?;
+
+          if (rotateAngle != null) {
+            prop.rotateAngel = rotateAngle;
+          }
+          if (rotateAngle90 != null) {
+            prop.fixedRotationAngle = rotateAngle90;
+          }
+          if (scaleRatio != null) {
+            prop.scaleRatio = scaleRatio;
+          }
+          if (upsideDown != null) {
+            prop.isUpsideDown = upsideDown;
+          }
+          if (turnAround != null) {
+            prop.isTurnAround = turnAround;
+          }
+
+          if (centrePointDx != null && centrePointDy != null) {
+            _moveX.value = centrePointDx;
+            _moveY.value = centrePointDy;
+          }
+
+          *//*setState(() {
+            _uiAdaptWinWithImage();
+            _updateBaseMap();
+            _uiAdaptWinWithSelectBox();
+            _uiLimitImageMoveInScope();
+          });*//*
+        }
+      }*/
     });
 
     ImageUtils.byte2UiImage(widget.imageData).then((value) {
       setState(() {
         prop._targetUIImage = value;
+        /* prop.rotateAngel = 20;
+        prop.scaleRatio = 0.5;*/
+
         _moveX.value = centrePoint.dx;
         _moveY.value = centrePoint.dy;
 
@@ -282,8 +425,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     _updateSelectBox(const Rect.fromLTWH(0, 0, 100, 100));
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _winSize ??= _handleKey.currentContext?.size
-          ?.also((it) => ui.Size(it.width, it.height));
+      _winSize ??= _handleKey.currentContext?.size?.also((it) => ui.Size(it.width, it.height));
     });
   }
 
@@ -419,16 +561,16 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     setState(() {});
   }
 
-  ///边际检测
+  ///Margin detection
   void _marginalDetection() {
-    //旋转后 更新底图
+    //Update the base map after rotation
     _updateBaseMap();
-    //检测是否超出取景有效范围
+    //Check whether it exceeds the effective range of framing
     _uiLimitImageMoveInScope();
-    //如果图形发生旋转，则限制取景框在旋转的图形内
+    //If the graphic is rotated, limit the viewfinder frame to the rotated graphic.
     final changeNum = _uiRealTimeLimitImageMoveInScope();
-    //检测发生旋转时是否超出图片有效范围
-    //大于1个以上的顶角需要挪动时，一般就是位置不够，需要改变scale
+    //Detect whether the effective range of the image is exceeded when rotation occurs
+    //When more than 1 vertex needs to be moved, it is usually because the position is not enough and the scale needs to be changed.
     if (changeNum > 1) {
       _uiLimitSelectBoxInSubstituteScopeWhenRotate();
     }
@@ -512,16 +654,13 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     final bm_rect = baseMap_rect;
     //获取当前取景框位置
     final box_rect = _resultRect_selectBox;
-    final clippingRegion_rect = Rect.fromLTWH(box_rect.left - bm_rect.left,
-        box_rect.top - bm_rect.top, box_rect.width, box_rect.height);
+    final clippingRegion_rect = Rect.fromLTWH(box_rect.left - bm_rect.left, box_rect.top - bm_rect.top, box_rect.width, box_rect.height);
     return clippingRegion_rect;
   }
 
   ///取景框自动适配屏幕放大对应的图片区域
   void _amplificationSampling(
-      {void Function(AnimationStatus)? selectBoxListener,
-      void Function(AnimationStatus)? scaleListener,
-      void Function(AnimationStatus)? moveListener}) {
+      {void Function(AnimationStatus)? selectBoxListener, void Function(AnimationStatus)? scaleListener, void Function(AnimationStatus)? moveListener}) {
     final result = _calculateAmplificationSampling(
       moveOffset: ui.Offset(_moveX.value, _moveY.value),
       prop: prop,
@@ -610,7 +749,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     _selectBoxKey = UniqueKey();
   }
 
-  //更新底图
+  //Update basemap
   void _updateBaseMap() {
     final result = _calculateUpdateBaseMap(
         // substituteSize: prop.substituteSize,
@@ -628,7 +767,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     });
   }
 
-  ///刷新让图片适配屏幕
+  ///Refresh to fit the image to the screen
   void _uiAdaptWinWithImage() {
     prop._targetUIImage?.go((it) {
       if (it.height <= 0 || it.width <= 0 || operationWinRect == null) {
@@ -638,33 +777,23 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       final scaleH = it.height / operationWinRect!.height;
       final resScale = math.max(scaleW, scaleH);
 
-      prop._substituteSize =
-          Size(it.width * (1 / resScale), it.height * (1 / resScale));
+      prop._substituteSize = Size(it.width * (1 / resScale), it.height * (1 / resScale));
     });
   }
 
-  ///刷新让取景框恢复贴边
+  ///Refresh to restore the edge of the viewfinder
   void _uiAdaptWinWithSelectBox() {
     if (operationWinRect != null) {
       final rect = Rect.fromLTWH(
-          10,
-          _moveY.value -
-              prop.baseMapSize.height * prop._scaleRatio.min / 2 +
-              10,
-          operationWinRect!.width,
-          prop.baseMapSize.height * prop._scaleRatio.min);
+          10, _moveY.value - prop.baseMapSize.height * prop._scaleRatio.min / 2 + 10, operationWinRect!.width, prop.baseMapSize.height * prop._scaleRatio.min);
       _updateSelectBox(rect);
     }
   }
 
-  ///图片发生90度旋转计算坐标轮换
+  ///The picture is rotated 90 degrees to calculate the coordinate rotation
   void _uiCoordinateTransformationWith90Degree({required bool isLeftRotate}) {
     final result = _calculateCoordinateTransformationWith90Degree(
-        isLeftRotate: isLeftRotate,
-        bm_rect: baseMap_rect,
-        box_rect: _resultRect_selectBox,
-        operationWinRect: operationWinRect,
-        prop: prop);
+        isLeftRotate: isLeftRotate, bm_rect: baseMap_rect, box_rect: _resultRect_selectBox, operationWinRect: operationWinRect, prop: prop);
     //更新取景框rect
     // ignore: unnecessary_lambdas
     result.selectBoxRect?.go((rect) {
@@ -717,9 +846,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
   ///恢复图片包裹取景框
   void _uiRecoverImageInScope(
-      {DataScaleDetailsGroup? dataGroup,
-      Duration? duration = const Duration(milliseconds: 500),
-      void Function(AnimationStatus)? moveListener}) {
+      {DataScaleDetailsGroup? dataGroup, Duration? duration = const Duration(milliseconds: 500), void Function(AnimationStatus)? moveListener}) {
     //保存一下处理前的数据，留着以后做动画
     final before_moveX = _moveX.value;
     final before_moveY = _moveY.value;
@@ -746,19 +873,14 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           final symbol_x = funDirectV(pre_point.dx, next_point.dx);
           final symbol_y = funDirectV(pre_point.dy, next_point.dy);
 
-          _moveX.value +=
-              symbol_x * math.max((next_point.dx - pre_point.dx).abs(), 1);
-          _moveY.value +=
-              symbol_y * math.max((next_point.dy - pre_point.dy).abs(), 1);
+          _moveX.value += symbol_x * math.max((next_point.dx - pre_point.dx).abs(), 1);
+          _moveY.value += symbol_y * math.max((next_point.dy - pre_point.dy).abs(), 1);
         }
       });
     }
 
-    final result = _calculateRecoverImageInScope(
-        moveOffset: ui.Offset(_moveX.value, _moveY.value),
-        bm_rect: baseMap_rect,
-        box_rect: _resultRect_selectBox,
-        prop: prop);
+    final result =
+        _calculateRecoverImageInScope(moveOffset: ui.Offset(_moveX.value, _moveY.value), bm_rect: baseMap_rect, box_rect: _resultRect_selectBox, prop: prop);
 
     result.scale?.go((scale) {
       prop.scaleRatio = scale;
@@ -834,8 +956,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
     var changeNum = 0;
 
     final curRotateAngel = prop.rotateAngel.also((angel) {
-      print(
-          '左右切换:${prop.isTurnAround}  上下切换:${prop.isUpsideDown}  旋转:${prop.fixedRotationAngle}');
+      print('左右切换:${prop.isTurnAround}  上下切换:${prop.isUpsideDown}  旋转:${prop.fixedRotationAngle}');
       var ret = prop.fixedRotationAngle.also((it) {
         if ([90, -90].contains(it)) {
           return it.abs();
@@ -918,46 +1039,32 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           //可以得到目标图的4个顶点坐标
           final sub_left_top = Offset(bm_rect.left, bm_rect.top + leftLength);
           final sub_right_top = Offset(bm_rect.left + topLength, bm_rect.top);
-          final sub_right_bottom = Offset(bm_rect.left + prop.baseMapSize.width,
-              bm_rect.top + (prop.baseMapSize.height - leftLength));
-          final sub_left_bottom = Offset(
-              bm_rect.left + (prop.baseMapSize.width - topLength),
-              bm_rect.top + prop.baseMapSize.height);
+          final sub_right_bottom = Offset(bm_rect.left + prop.baseMapSize.width, bm_rect.top + (prop.baseMapSize.height - leftLength));
+          final sub_left_bottom = Offset(bm_rect.left + (prop.baseMapSize.width - topLength), bm_rect.top + prop.baseMapSize.height);
 
           //curRotateAngel > 0 就是逆时针旋转，取景器topleft顶点对应目标图top边来做判断
           //判断左上角， 是否进入三角区范围才需要做判断
-          if ((box_left_top.dx >= sub_left_top.dx &&
-                  box_left_top.dx <= sub_right_top.dx) &&
-              (box_left_top.dy >= sub_right_top.dy &&
-                  box_left_top.dy <= sub_left_top.dy)) {
+          if ((box_left_top.dx >= sub_left_top.dx && box_left_top.dx <= sub_right_top.dx) &&
+              (box_left_top.dy >= sub_right_top.dy && box_left_top.dy <= sub_left_top.dy)) {
             final slope = MathUtils.calculateSlope(sub_left_top, sub_right_top);
-            final slope2 =
-                MathUtils.calculateSlope(box_left_top, sub_right_top);
+            final slope2 = MathUtils.calculateSlope(box_left_top, sub_right_top);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               // 这就超边了
               print('逆时针 斜率  长边:$slope 短边:$slope2  左上角超边了!');
 
-              final standardSlope =
-                  MathUtils.calculateSlopeNotAbs(sub_left_top, sub_right_top);
-              final leftOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_right_top, box_left_top.dx);
-              final rightOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_right_top, box_left_top.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_left_top, sub_right_top);
+              final leftOffset = MathUtils.getReverseYBySlope(standardSlope, sub_right_top, box_left_top.dx);
+              final rightOffset = MathUtils.getReverseXBySlope(standardSlope, sub_right_top, box_left_top.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_left_top, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_left_top, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_y =
-                  MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
-              final need_x =
-                  MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_y = MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
+              final need_x = MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value -= need_x;
               _moveY.value -= need_y;
               changeNum++;
@@ -965,39 +1072,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断右上角， 是否进入三角区范围才需要做判断
-          if ((box_right_top.dx >= sub_right_top.dx &&
-                  box_right_top.dx <= sub_right_bottom.dx) &&
-              (box_right_top.dy >= sub_right_top.dy &&
-                  box_right_top.dy <= sub_right_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_right_bottom, sub_right_top);
-            final slope2 =
-                MathUtils.calculateSlope(box_right_top, sub_right_top);
+          if ((box_right_top.dx >= sub_right_top.dx && box_right_top.dx <= sub_right_bottom.dx) &&
+              (box_right_top.dy >= sub_right_top.dy && box_right_top.dy <= sub_right_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_right_bottom, sub_right_top);
+            final slope2 = MathUtils.calculateSlope(box_right_top, sub_right_top);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('逆时针 斜率  长边:$slope 短边:$slope2  右上角超边了!');
 
-              final standardSlope = MathUtils.calculateSlopeNotAbs(
-                  sub_right_bottom, sub_right_top);
-              final rightOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_right_top, box_right_top.dx);
-              final leftOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_right_top, box_right_top.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_right_bottom, sub_right_top);
+              final rightOffset = MathUtils.getReverseYBySlope(standardSlope, sub_right_top, box_right_top.dx);
+              final leftOffset = MathUtils.getReverseXBySlope(standardSlope, sub_right_top, box_right_top.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_right_top, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_right_top, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_x =
-                  MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
-              final need_y =
-                  MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_x = MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
+              final need_y = MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value += need_x;
               _moveY.value -= need_y;
               changeNum++;
@@ -1005,39 +1100,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断右下角， 是否进入三角区范围才需要做判断
-          if ((box_right_bottom.dx >= sub_left_bottom.dx &&
-                  box_right_bottom.dx <= sub_right_bottom.dx) &&
-              (box_right_bottom.dy >= sub_right_bottom.dy &&
-                  box_right_bottom.dy <= sub_left_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_right_bottom, sub_left_bottom);
-            final slope2 =
-                MathUtils.calculateSlope(box_right_bottom, sub_left_bottom);
+          if ((box_right_bottom.dx >= sub_left_bottom.dx && box_right_bottom.dx <= sub_right_bottom.dx) &&
+              (box_right_bottom.dy >= sub_right_bottom.dy && box_right_bottom.dy <= sub_left_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_right_bottom, sub_left_bottom);
+            final slope2 = MathUtils.calculateSlope(box_right_bottom, sub_left_bottom);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('逆时针 斜率  长边:$slope 短边:$slope2  右下角超边了!');
 
-              final standardSlope = MathUtils.calculateSlopeNotAbs(
-                  sub_right_bottom, sub_left_bottom);
-              final rightOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_left_bottom, box_right_bottom.dx);
-              final leftOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_left_bottom, box_right_bottom.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_right_bottom, sub_left_bottom);
+              final rightOffset = MathUtils.getReverseYBySlope(standardSlope, sub_left_bottom, box_right_bottom.dx);
+              final leftOffset = MathUtils.getReverseXBySlope(standardSlope, sub_left_bottom, box_right_bottom.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_right_bottom, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_right_bottom, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_y =
-                  MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
-              final need_x =
-                  MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_y = MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
+              final need_x = MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value += need_x;
               _moveY.value += need_y;
               changeNum++;
@@ -1045,39 +1128,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断左下角， 是否进入三角区范围才需要做判断
-          if ((box_left_bottom.dx >= sub_left_top.dx &&
-                  box_left_bottom.dx <= sub_left_bottom.dx) &&
-              (box_left_bottom.dy >= sub_left_top.dy &&
-                  box_left_bottom.dy <= sub_left_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_left_top, sub_left_bottom);
-            final slope2 =
-                MathUtils.calculateSlope(box_left_bottom, sub_left_bottom);
+          if ((box_left_bottom.dx >= sub_left_top.dx && box_left_bottom.dx <= sub_left_bottom.dx) &&
+              (box_left_bottom.dy >= sub_left_top.dy && box_left_bottom.dy <= sub_left_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_left_top, sub_left_bottom);
+            final slope2 = MathUtils.calculateSlope(box_left_bottom, sub_left_bottom);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('逆时针 斜率  长边:$slope 短边:$slope2  左下角超边了!');
 
-              final standardSlope =
-                  MathUtils.calculateSlopeNotAbs(sub_left_top, sub_left_bottom);
-              final leftOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_left_bottom, box_left_bottom.dx);
-              final rightOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_left_bottom, box_left_bottom.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_left_top, sub_left_bottom);
+              final leftOffset = MathUtils.getReverseYBySlope(standardSlope, sub_left_bottom, box_left_bottom.dx);
+              final rightOffset = MathUtils.getReverseXBySlope(standardSlope, sub_left_bottom, box_left_bottom.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_left_bottom, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_left_bottom, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_x =
-                  MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
-              final need_y =
-                  MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_x = MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh;
+              final need_y = MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh;
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value -= need_x;
               _moveY.value += need_y;
               changeNum++;
@@ -1088,50 +1159,33 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           final topLength2 = prop.baseMapSize.width - topLength;
           final leftLength2 = leftLength;
           final sub_left_top = Offset(bm_rect.left + topLength2, bm_rect.top);
-          final sub_right_top = Offset(
-              bm_rect.left + prop.baseMapSize.width, bm_rect.top + leftLength2);
-          final sub_right_bottom = Offset(
-              bm_rect.left + (prop.baseMapSize.width - topLength2),
-              bm_rect.top + prop.baseMapSize.height);
-          final sub_left_bottom = Offset(bm_rect.left,
-              bm_rect.top + (prop.baseMapSize.height - leftLength2));
+          final sub_right_top = Offset(bm_rect.left + prop.baseMapSize.width, bm_rect.top + leftLength2);
+          final sub_right_bottom = Offset(bm_rect.left + (prop.baseMapSize.width - topLength2), bm_rect.top + prop.baseMapSize.height);
+          final sub_left_bottom = Offset(bm_rect.left, bm_rect.top + (prop.baseMapSize.height - leftLength2));
 
           //curRotateAngel < 0 就是顺时针旋转，取景器topright顶点对应目标图top边来做判断
           //判断右上角， 是否进入三角区范围才需要做判断
-          if ((box_right_top.dx >= sub_left_top.dx &&
-                  box_right_top.dx <= sub_right_top.dx) &&
-              (box_right_top.dy >= sub_left_top.dy &&
-                  box_right_top.dy <= sub_right_top.dy)) {
+          if ((box_right_top.dx >= sub_left_top.dx && box_right_top.dx <= sub_right_top.dx) &&
+              (box_right_top.dy >= sub_left_top.dy && box_right_top.dy <= sub_right_top.dy)) {
             final slope = MathUtils.calculateSlope(sub_right_top, sub_left_top);
-            final slope2 =
-                MathUtils.calculateSlope(box_right_top, sub_left_top);
+            final slope2 = MathUtils.calculateSlope(box_right_top, sub_left_top);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               // 这就超边了
               print('顺时针 斜率  长边:$slope 短边:$slope2 右上角超边了!');
 
-              final standardSlope =
-                  MathUtils.calculateSlopeNotAbs(sub_right_top, sub_left_top);
-              final rightOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_left_top, box_right_top.dx);
-              final leftOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_left_top, box_right_top.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_right_top, sub_left_top);
+              final rightOffset = MathUtils.getReverseYBySlope(standardSlope, sub_left_top, box_right_top.dx);
+              final leftOffset = MathUtils.getReverseXBySlope(standardSlope, sub_left_top, box_right_top.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_right_top, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_right_top, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_y =
-                  (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              final need_x =
-                  (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_y = (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh).abs();
+              final need_x = (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh).abs();
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value += need_x;
               _moveY.value -= need_y;
               changeNum++;
@@ -1139,41 +1193,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断右下角， 是否进入三角区范围才需要做判断
-          if ((box_right_bottom.dx >= sub_right_bottom.dx &&
-                  box_right_bottom.dx <= sub_right_top.dx) &&
-              (box_right_bottom.dy >= sub_right_top.dy &&
-                  box_right_bottom.dy <= sub_right_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_right_top, sub_right_bottom);
-            final slope2 =
-                MathUtils.calculateSlope(box_right_bottom, sub_right_bottom);
+          if ((box_right_bottom.dx >= sub_right_bottom.dx && box_right_bottom.dx <= sub_right_top.dx) &&
+              (box_right_bottom.dy >= sub_right_top.dy && box_right_bottom.dy <= sub_right_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_right_top, sub_right_bottom);
+            final slope2 = MathUtils.calculateSlope(box_right_bottom, sub_right_bottom);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('顺时针 斜率  长边:$slope 短边:$slope2  右下角超边了!');
 
-              final standardSlope = MathUtils.calculateSlopeNotAbs(
-                  sub_right_top, sub_right_bottom);
-              final leftOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_right_bottom, box_right_bottom.dx);
-              final rightOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_right_bottom, box_right_bottom.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_right_top, sub_right_bottom);
+              final leftOffset = MathUtils.getReverseYBySlope(standardSlope, sub_right_bottom, box_right_bottom.dx);
+              final rightOffset = MathUtils.getReverseXBySlope(standardSlope, sub_right_bottom, box_right_bottom.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_right_bottom, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_right_bottom, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_x =
-                  (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              final need_y =
-                  (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_x = (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh).abs();
+              final need_y = (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh).abs();
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value += need_x;
               _moveY.value += need_y;
               changeNum++;
@@ -1181,41 +1221,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断左下角， 是否进入三角区范围才需要做判断
-          if ((box_left_bottom.dx >= sub_left_bottom.dx &&
-                  box_left_bottom.dx <= sub_right_bottom.dx) &&
-              (box_left_bottom.dy >= sub_left_bottom.dy &&
-                  box_left_bottom.dy <= sub_right_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_left_bottom, sub_right_bottom);
-            final slope2 =
-                MathUtils.calculateSlope(box_left_bottom, sub_right_bottom);
+          if ((box_left_bottom.dx >= sub_left_bottom.dx && box_left_bottom.dx <= sub_right_bottom.dx) &&
+              (box_left_bottom.dy >= sub_left_bottom.dy && box_left_bottom.dy <= sub_right_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_left_bottom, sub_right_bottom);
+            final slope2 = MathUtils.calculateSlope(box_left_bottom, sub_right_bottom);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('顺时针 斜率  长边:$slope 短边:$slope2  左下角超边了!');
 
-              final standardSlope = MathUtils.calculateSlopeNotAbs(
-                  sub_left_bottom, sub_right_bottom);
-              final rightOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_right_bottom, box_left_bottom.dx);
-              final leftOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_right_bottom, box_left_bottom.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_left_bottom, sub_right_bottom);
+              final rightOffset = MathUtils.getReverseYBySlope(standardSlope, sub_right_bottom, box_left_bottom.dx);
+              final leftOffset = MathUtils.getReverseXBySlope(standardSlope, sub_right_bottom, box_left_bottom.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_left_bottom, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_left_bottom, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_y =
-                  (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              final need_x =
-                  (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_y = (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh).abs();
+              final need_x = (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh).abs();
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value -= need_x;
               _moveY.value += need_y;
               changeNum++;
@@ -1223,40 +1249,27 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
           }
 
           //判断左上角， 是否进入三角区范围才需要做判断
-          if ((box_left_top.dx >= sub_left_bottom.dx &&
-                  box_left_top.dx <= sub_left_top.dx) &&
-              (box_left_top.dy >= sub_left_top.dy &&
-                  box_left_top.dy <= sub_left_bottom.dy)) {
-            final slope =
-                MathUtils.calculateSlope(sub_left_bottom, sub_left_top);
+          if ((box_left_top.dx >= sub_left_bottom.dx && box_left_top.dx <= sub_left_top.dx) &&
+              (box_left_top.dy >= sub_left_top.dy && box_left_top.dy <= sub_left_bottom.dy)) {
+            final slope = MathUtils.calculateSlope(sub_left_bottom, sub_left_top);
             final slope2 = MathUtils.calculateSlope(box_left_top, sub_left_top);
             // print('斜率  长边:$slope 短边:$slope2 ');
             if (slope2 > slope) {
               //这就超边了
               print('顺时针 斜率  长边:$slope 短边:$slope2  左上角超边了!');
 
-              final standardSlope =
-                  MathUtils.calculateSlopeNotAbs(sub_left_bottom, sub_left_top);
-              final leftOffset = MathUtils.getReverseYBySlope(
-                  standardSlope, sub_left_top, box_left_top.dx);
-              final rightOffset = MathUtils.getReverseXBySlope(
-                  standardSlope, sub_left_top, box_left_top.dy);
-              print(
-                  'leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
+              final standardSlope = MathUtils.calculateSlopeNotAbs(sub_left_bottom, sub_left_top);
+              final leftOffset = MathUtils.getReverseYBySlope(standardSlope, sub_left_top, box_left_top.dx);
+              final rightOffset = MathUtils.getReverseXBySlope(standardSlope, sub_left_top, box_left_top.dy);
+              print('leftOffset:${leftOffset.toString()}  rightOffset:${rightOffset.toString()}');
 
               //拿到左右2个相交点,然后可以计算以2个相交点和超框的取景器直角点为三角形的斜边为底的高
               //得到三角形斜边高
-              final bevelledHigh = MathUtils.getTriangularHeight(
-                  box_left_top, leftOffset, rightOffset);
+              final bevelledHigh = MathUtils.getTriangularHeight(box_left_top, leftOffset, rightOffset);
               //然后计算得到需要移动的x，y距离
-              final need_x =
-                  (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              final need_y =
-                  (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh)
-                      .abs();
-              print(
-                  'bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
+              final need_x = (MathUtils.angle2CosSlope(curRotateAngel) * bevelledHigh).abs();
+              final need_y = (MathUtils.angle2SinSlope(curRotateAngel) * bevelledHigh).abs();
+              print('bevelledHigh:${bevelledHigh.toString()} need_x:$need_x need_y:$need_y');
               _moveX.value -= need_x;
               _moveY.value -= need_y;
               changeNum++;
@@ -1355,13 +1368,11 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       void Function(AnimationStatus)? listener}) {
     _animationController_moveOffset?.stop();
     if (controller == null) {
-      _animationController_moveOffset =
-          AnimationController(vsync: this, duration: duration);
+      _animationController_moveOffset = AnimationController(vsync: this, duration: duration);
     }
 
-    _animation_moveOffset = Tween<ui.Offset>(begin: before, end: after)
-        .chain(CurveTween(curve: Curves.easeOut))
-        .animate(controller ?? _animationController_moveOffset!);
+    _animation_moveOffset =
+        Tween<ui.Offset>(begin: before, end: after).chain(CurveTween(curve: Curves.easeOut)).animate(controller ?? _animationController_moveOffset!);
 
     _animation_moveOffset!.addListener(() {
       setState(() {
@@ -1386,13 +1397,11 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       void Function(AnimationStatus)? listener}) {
     _animationController_propScale?.stop();
     if (controller == null) {
-      _animationController_propScale =
-          AnimationController(vsync: this, duration: duration);
+      _animationController_propScale = AnimationController(vsync: this, duration: duration);
     }
 
-    _animation_propScale = Tween<double>(begin: before, end: after)
-        .chain(CurveTween(curve: Curves.easeOut))
-        .animate(controller ?? _animationController_propScale!);
+    _animation_propScale =
+        Tween<double>(begin: before, end: after).chain(CurveTween(curve: Curves.easeOut)).animate(controller ?? _animationController_propScale!);
 
     _animation_propScale!.addListener(() {
       setState(() {
@@ -1449,26 +1458,20 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
       void Function(AnimationStatus)? listener}) {
     _animationController_selectBox?.stop();
     if (controller == null) {
-      _animationController_selectBox =
-          AnimationController(vsync: this, duration: duration);
+      _animationController_selectBox = AnimationController(vsync: this, duration: duration);
     }
 
     _animation_selectBox_offset =
-        Tween<ui.Offset>(begin: offsetBefore, end: offsetAfter)
-            .chain(CurveTween(curve: Curves.easeOut))
-            .animate(controller ?? _animationController_selectBox!);
+        Tween<ui.Offset>(begin: offsetBefore, end: offsetAfter).chain(CurveTween(curve: Curves.easeOut)).animate(controller ?? _animationController_selectBox!);
 
     _animation_selectBox_size =
-        Tween<ui.Size>(begin: sizeBefore, end: sizeAfter)
-            .chain(CurveTween(curve: Curves.easeOut))
-            .animate(controller ?? _animationController_selectBox!);
+        Tween<ui.Size>(begin: sizeBefore, end: sizeAfter).chain(CurveTween(curve: Curves.easeOut)).animate(controller ?? _animationController_selectBox!);
 
     _animation_selectBox_size!.addListener(() {
       setState(() {
         final offset = _animation_selectBox_offset!.value;
         final size = _animation_selectBox_size!.value;
-        final rect =
-            Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+        final rect = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
         _updateSelectBox(rect);
       });
     });
@@ -1544,24 +1547,15 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
                   key: _repaintBoundaryKey,
                   child: Stack(alignment: Alignment.center, children: [
                     Container(
-                        color: Colors
-                            .transparent, // Colors.yellow.withOpacity(0.3),
+                        color: Colors.transparent, // Colors.yellow.withOpacity(0.3),
                         child: Transform.rotate(
                           //控制90度旋转
                           angle: angel_1_degree *
                               prop.fixedRotationAngle.also((it) {
                                 //这里特殊处理，如果存在动画，则取动画值
-                                final isCompleted =
-                                    _animationController_propRotate
-                                            ?.isCompleted ??
-                                        true;
-                                final isDismissed =
-                                    _animationController_propRotate
-                                            ?.isDismissed ??
-                                        true;
-                                if (!isCompleted &&
-                                    !isDismissed &&
-                                    _animation_propRotate != null) {
+                                final isCompleted = _animationController_propRotate?.isCompleted ?? true;
+                                final isDismissed = _animationController_propRotate?.isDismissed ?? true;
+                                if (!isCompleted && !isDismissed && _animation_propRotate != null) {
                                   return _animation_propRotate!.value;
                                 }
                                 return it;
@@ -1569,10 +1563,8 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
                           child: Transform.rotate(
                               angle: angel_1_degree * prop.rotateAngel, //控制校正旋转
                               child: Transform.scale(
-                                scaleX: prop.scaleRatio *
-                                    (!prop.isTurnAround ? 1 : -1), //控制 X缩放+左右翻转
-                                scaleY: prop.scaleRatio *
-                                    (!prop.isUpsideDown ? 1 : -1), //控制 Y缩放+上下翻转
+                                scaleX: prop.scaleRatio * (!prop.isTurnAround ? 1 : -1), //控制 X缩放+左右翻转
+                                scaleY: prop.scaleRatio * (!prop.isUpsideDown ? 1 : -1), //控制 Y缩放+上下翻转
                                 child: Transform.translate(
                                     offset: const ui.Offset(0, 0).also((it) {
                                       if (prop.hasXYRotate) {
@@ -1584,26 +1576,19 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
                                         // rotate y ++, x向右补充位移
                                         final rx = prop.rotateX.abs();
                                         final ry = prop.rotateY.abs();
-                                        final ssSize =
-                                            prop.substituteSize ?? Size.zero;
+                                        final ssSize = prop.substituteSize ?? Size.zero;
                                         prop.rotateX.go((it) {
                                           if (it > 0) {
-                                            oy = rx /
-                                                45 *
-                                                ssSize.height /
-                                                2 *
-                                                -1;
+                                            oy = rx / 45 * ssSize.height / 2 * -1;
                                           } else if (it < 0) {
-                                            oy =
-                                                rx / 45 * ssSize.height / 2 * 1;
+                                            oy = rx / 45 * ssSize.height / 2 * 1;
                                           }
                                         });
                                         prop.rotateY.go((it) {
                                           if (it > 0) {
                                             ox = ry / 45 * ssSize.width / 2 * 1;
                                           } else if (it < 0) {
-                                            ox =
-                                                ry / 45 * ssSize.width / 2 * -1;
+                                            ox = ry / 45 * ssSize.width / 2 * -1;
                                           }
                                         });
                                         return ui.Offset(ox, oy);
@@ -1616,14 +1601,11 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
                                       transform: Matrix4.identity()
                                         ..setEntry(3, 2, 0.005)
                                         ..rotateX(angel_1_degree * prop.rotateX)
-                                        ..rotateY(
-                                            angel_1_degree * prop.rotateY),
+                                        ..rotateY(angel_1_degree * prop.rotateY),
                                       child: Container(
                                         color: Colors.pink.withOpacity(0.0),
-                                        width:
-                                            prop.substituteSize!.width, //控制宽度
-                                        height:
-                                            prop.substituteSize!.height, //控制高度
+                                        width: prop.substituteSize!.width, //控制宽度
+                                        height: prop.substituteSize!.height, //控制高度
                                         child: _buildTargetImage(), //构图
                                       ),
                                     )),
@@ -1755,10 +1737,7 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
                 alignment: Alignment.center,
                 child: RepaintBoundary(
                   key: _prepareKey,
-                  child: CustomPaint(
-                      painter:
-                          ResultPaint(image: image, tailorRect: tailorRect),
-                      size: Size(tailorRect.width, tailorRect.height)),
+                  child: CustomPaint(painter: ResultPaint(image: image, tailorRect: tailorRect), size: Size(tailorRect.width, tailorRect.height)),
                 ),
               );
             },
@@ -1768,84 +1747,82 @@ class _ImageEditorPlaneState extends State<ImageEditorPlane>
 
   ///截图
   Future<Map?> _toScreenShot({required GlobalKey key}) async {
-    final boundary =
-        key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary != null) {
       // final dpr = ui.window.devicePixelRatio; // 获取当前设备的像素比
       // final image = await boundary.toImage(pixelRatio: dpr);
       final image = await boundary.toImage();
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final ui.Image img = await ImageUtils.byte2UiImage(byteData!);
-      return Future.value(
-          {'byteData': byteData, 'image': img, 'size': boundary.size});
+      return Future.value({'byteData': byteData, 'image': img, 'size': boundary.size});
     }
 
     return Future.value(null);
   }
 
   ///展示截图
-  // void _toShowScreenShotDialog(
-  //     {required Rect tailorRect, FunTailorResult? action}) {
-  //   _toScreenShot(key: _repaintBoundaryKey).then((value) async {
-  //     if (value != null) {
-  //       final image = value['image'] as ui.Image;
-  //       final size = value['size'] as Size;
+// void _toShowScreenShotDialog(
+//     {required Rect tailorRect, FunTailorResult? action}) {
+//   _toScreenShot(key: _repaintBoundaryKey).then((value) async {
+//     if (value != null) {
+//       final image = value['image'] as ui.Image;
+//       final size = value['size'] as Size;
 
-  //       final key = GlobalKey();
-  //       showDialog(
-  //           context: context,
-  //           builder: (context) {
-  //             return Stack(
-  //               children: [
-  //                 Container(
-  //                   width: double.maxFinite,
-  //                   height: double.maxFinite,
-  //                   color: Colors.white,
-  //                   alignment: Alignment.center,
-  //                   child: RepaintBoundary(
-  //                     key: key,
-  //                     child: CustomPaint(
-  //                         painter:
-  //                             ResultPaint(image: image, tailorRect: tailorRect),
-  //                         size: Size(tailorRect.width, tailorRect.height)),
-  //                   ),
-  //                 ).gestureDetector(
-  //                   onTap: () async {
-  //                     Navigator.of(context).pop();
-  //                   },
-  //                 ),
-  //                 Positioned(
-  //                   bottom: 10,
-  //                   child: Container(
-  //                     width: winSize!.width,
-  //                     alignment: Alignment.center,
-  //                     child: Text(
-  //                       '点击任意位置关闭',
-  //                       style: TextStyle(
-  //                           fontSize: 18,
-  //                           color: Colors.grey.withOpacity(0.8),
-  //                           fontWeight: FontWeight.w500),
-  //                     ),
-  //                   ),
-  //                 )
-  //               ],
-  //             );
-  //           });
-  //     }
-  //   });
-  // }
+//       final key = GlobalKey();
+//       showDialog(
+//           context: context,
+//           builder: (context) {
+//             return Stack(
+//               children: [
+//                 Container(
+//                   width: double.maxFinite,
+//                   height: double.maxFinite,
+//                   color: Colors.white,
+//                   alignment: Alignment.center,
+//                   child: RepaintBoundary(
+//                     key: key,
+//                     child: CustomPaint(
+//                         painter:
+//                             ResultPaint(image: image, tailorRect: tailorRect),
+//                         size: Size(tailorRect.width, tailorRect.height)),
+//                   ),
+//                 ).gestureDetector(
+//                   onTap: () async {
+//                     Navigator.of(context).pop();
+//                   },
+//                 ),
+//                 Positioned(
+//                   bottom: 10,
+//                   child: Container(
+//                     width: winSize!.width,
+//                     alignment: Alignment.center,
+//                     child: Text(
+//                       '点击任意位置关闭',
+//                       style: TextStyle(
+//                           fontSize: 18,
+//                           color: Colors.grey.withOpacity(0.8),
+//                           fontWeight: FontWeight.w500),
+//                     ),
+//                   ),
+//                 )
+//               ],
+//             );
+//           });
+//     }
+//   });
+// }
 
-  //拿到截图数据切图
-  // void _toCutTheFigure() {
-  //   _toScreenShot(key: _repaintBoundaryKey).then((value) {
-  //     if (value != null) {
-  //       final image = value['image'] as ByteData;
-  //       final size = value['size'] as Size;
-  //       final srcImage = crop.Image.fromBytes(
-  //           size.width.toInt(), size.height.toInt(), image.buffer.asInt8List());
-  //       final retImage =
-  //           crop.copyCrop(srcImage, 0, 100, size.width.toInt(), 200);
-  //     }
-  //   });
-  // }
+//拿到截图数据切图
+// void _toCutTheFigure() {
+//   _toScreenShot(key: _repaintBoundaryKey).then((value) {
+//     if (value != null) {
+//       final image = value['image'] as ByteData;
+//       final size = value['size'] as Size;
+//       final srcImage = crop.Image.fromBytes(
+//           size.width.toInt(), size.height.toInt(), image.buffer.asInt8List());
+//       final retImage =
+//           crop.copyCrop(srcImage, 0, 100, size.width.toInt(), 200);
+//     }
+//   });
+// }
 }

@@ -48,6 +48,20 @@ class ExampleDemo {
         context: context,
         pageBuilder: (context, animation, secondaryAnimation) {
           final media = MediaQuery.of(context);
+
+          //add post frame callback
+          var args= {
+            'rotateAngle': 35.0,
+            'rotateAngle90': 30,
+            'scaleRatio': 0.5,
+            'upsideDown': true,
+            'turnAround': true,
+            'centrePointDx': 50.0,
+            'centrePointDy': 50.0,
+
+          };
+          controller.setTransform(args);
+
           return Material(
             child: Center(
               child: Container(
